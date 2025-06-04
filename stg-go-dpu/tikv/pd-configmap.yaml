@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tikv-pd
+  namespace: tikv-operator
+data:
+  config.toml: |
+    # put pd config here or leave empty

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: letsencrypt-stg-go-v2
+spec:
+  dnsNames:
+    - v2.co-pilot.linkeye.io
+    - v2.co-pilot.api.linkeye.io
+  secretName: letsencrypt-stg-go-v2
+  issuerRef:
+    name: letsencrypt-stg
+    kind: ClusterIssuer
+ 

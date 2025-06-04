@@ -1,0 +1,19 @@
+apiVersion: tikv.org/v1alpha1
+kind: TikvCluster
+metadata:
+  name: basic
+  namespace: tikv-operator
+spec:
+  version: v5.4.0
+  pd:
+    replicas: 2
+    baseImage: pingcap/pd
+    storageClassName: cinder-csi
+    requests:
+      storage: "10Gi"
+  tikv:
+    replicas: 2
+    baseImage: pingcap/tikv
+    storageClassName: cinder-csi
+    requests:
+      storage: "10Gi"

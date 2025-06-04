@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: go-ui-ingress-v2
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-stg"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - go-stg.api.linkeye.io
+        - go-stg.copilot.linkeye.io
+      secretName: letsencrypt-stg-go-v2
+  rules:
+    - host: v2.co-pilot.api.linkeye.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: go-api
+                port:
+                  number: 8080
+    - host: v2.co-pilot.linkeye.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: go-ui
+                port:
+                  number: 80

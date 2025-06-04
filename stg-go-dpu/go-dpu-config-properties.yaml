@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-dpu-config-properties
+data:
+  config.properties: |
+    kafka.server=broker.stg.streaming.linkeye.io
+    output.file=input.json
+    kafka.topic=Interface
+    kafka.port=443
+    tls.insecureSkipVerify=false
+    kafka.regular=regular
+    kafka.topic_status=DeviceStatus
+    kafka.RegularSidecar=RegularSidecar
+    kafka.InterfaceSidecar=InterfaceSidecar
+    kafka.CMDB=CMDB
+    kafka.Discovery=Discovery
+    kafka.L3_topology=L3_topology
+    kafka.l3locations=l3locations
+    kafka.l2topology=l2topology
+    kafka.test=testing
+    kafka.DexClients=DexClients
+    kafka.Topology=Topology
+    kafka.SSHFailures=SSHFailures
+    kafka.DexSessionMetrics=DexSessionMetrics
+    kafka.DexTcpMetrics=DexTcpMetrics
+    kafka.DexUdpMetrics=DexUdpMetrics
+    kafka.DexSslMetrics=DexSslMetrics
+    kafka.DexDnsMetrics=DexDnsMetrics
+    kafka.DexTraceRouteMetrics=DexTraceRouteMetrics
+    kafka.DexDefaultMetrics=DexDefaultMetrics
+    

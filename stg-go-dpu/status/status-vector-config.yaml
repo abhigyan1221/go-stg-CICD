@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: status-vector-go-config
+data:
+  vector.toml: |
+    [sources.app_logs]
+    type = "file"
+    include = ["/Kafka_status_new/logs/*.log"]
+    ignore_older = 86400
+    read_from = "beginning"
+
+    [transforms.tag_logs]
+    type = "remap"
+    inputs = ["app_logs"]
+    source = '''
+    .kubernetes.pod_name = "status-stg-dpu"
+    .log = .message
+    '''
+
+    [sinks.loki]
+    type = "loki"
+    inputs = ["tag_logs"]
+    endpoint = "http://122.184.106.242:3100"
+    labels = { "app" = "status-stg-dpu", "pod" = "{{ kubernetes.pod_name }}" }
+    encoding.codec = "json"
+    tenant_id = "1"

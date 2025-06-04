@@ -1,0 +1,69 @@
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  name: lan-dpu
+spec:
+  selector:
+    matchLabels:
+      app: lan-dpu
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: lan-dpu
+    spec:
+      imagePullSecrets:
+        - name: harbour #harbour
+      containers:
+      - name: lan-dpu
+        image: registry.us.linkeye.io/go/lan-dpu-env
+        volumeMounts:
+        - name: config-volume
+          mountPath: "/Lan/config"
+          # subPath: config.properties
+          readOnly: true
+        - name: env-config-volume
+          mountPath: "/Lan/env"
+          # subPath: .env
+        - name: tls-cert
+          mountPath: /usr/local/kafka/ssl/ca.crt
+          subPath: tls.crt
+          readOnly: true
+        - name: tls-cert
+          mountPath: /usr/local/kafka/ssl/client.crt
+          subPath: tls.crt
+          readOnly: true
+        - name: tls-cert
+          mountPath: /usr/local/kafka/ssl/client.key
+          subPath: tls.key
+          readOnly: true
+        - name: varlog
+          mountPath: /Lan/logs   
+
+
+      - name: vector
+        image: timberio/vector:latest-alpine
+        volumeMounts:
+          - name: varlog
+            mountPath: /Lan/logs
+          - name: vector-config
+            mountPath: /etc/vector
+        env:
+          - name: VECTOR_CONFIG
+            value: /etc/vector/vector.toml     
+
+      volumes:
+      - name: config-volume
+        configMap:
+          name: go-dpu-config-properties
+      - name: env-config-volume
+        secret:
+          secretName: go-dpu-secrets
+      - name: tls-cert
+        secret:
+          secretName: kafka-tls-stg
+      - name: varlog
+        emptyDir: {}
+      - name: vector-config
+        configMap:
+          name: lan-vector-config    
