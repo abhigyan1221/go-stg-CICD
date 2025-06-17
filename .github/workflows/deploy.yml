@@ -12,7 +12,7 @@ jobs:
     - name: 📥 Checkout repository
       uses: actions/checkout@v3
 
-    - name: 🛠️  Set up kubectl
+    - name: 🛠️ Set up kubectl
       uses: azure/setup-kubectl@v3
       with:
         version: 'latest'
@@ -39,24 +39,24 @@ jobs:
           --docker-password="$HARBOR_PASSWORD" \
           --docker-email="$HARBOR_EMAIL"
 
-    - name: 🚀 Deploy all components to Civo
+    - name: 🚀 Deploy all components to Kubernetes
       env:
         KUBECONFIG: ./kubeconfig.yaml
       run: |
-        # DPU Config & Secrets
+        echo "🔄 Applying ConfigMaps and Secrets..."
         kubectl apply -f go-stg/stg-go-dpu/go-dpu-config-properties.yaml --validate=true
         kubectl apply -f go-stg/stg-go-dpu/go-dpu-secrets.yaml --validate=true
 
-        # go-api service
+        echo "🚀 Deploying go-api..."
         kubectl apply -f go-stg/go-api/go-api-secrets.yaml --validate=true
         kubectl apply -f go-stg/go-api/go-api-deployment.yml --validate=true
         kubectl apply -f go-stg/go-api/go-api-service.yml --validate=true
 
-        # copilot service
+        echo "🚀 Deploying copilot..."
         kubectl apply -f go-stg/copilot/copilot-go-deployment.yaml --validate=true
         kubectl apply -f go-stg/copilot/copilot-service.yaml --validate=true
 
-        # DPU Deployments
+        echo "🚀 Deploying DPU services..."
         kubectl apply -f go-stg/stg-go-dpu/dex/dex-dpu-deployment.yaml --validate=true
         kubectl apply -f go-stg/stg-go-dpu/interface/interface-dpu-deployment.yaml --validate=true
         kubectl apply -f go-stg/stg-go-dpu/lan/lan-dpu-deployment.yaml --validate=true
@@ -68,13 +68,8 @@ jobs:
       env:
         KUBECONFIG: ./kubeconfig.yaml
       run: |
-        kubectl rollout restart deployment dex-dpu
-        kubectl rollout restart deployment interface-dpu
-        kubectl rollout restart deployment lan-dpu
-        kubectl rollout restart deployment regular-health
-        kubectl rollout restart deployment status-dpu
-        kubectl rollout restart deployment wan-dpu
-        kubectl rollout restart deployment go-ui
-        kubectl rollout restart deployment go-api
-
+        for deploy in dex-dpu interface-dpu lan-dpu regular-health status-dpu wan-dpu go-ui go-api; do
+          echo "♻️ Rolling out $deploy"
+          kubectl rollout restart deployment $deploy || echo "⚠️ Failed to restart $deploy"
+        done
 
