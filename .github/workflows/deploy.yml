@@ -1,0 +1,80 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v3
+
+    - name: 🛠️  Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: 🔐 Decode kubeconfig and set it up
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig.yaml
+
+    - name: 🧪 Debug - Show current context
+      run: |
+        KUBECONFIG=./kubeconfig.yaml kubectl config get-contexts
+
+    - name: 🔐 Create Harbor imagePullSecret (if not exists)
+      env:
+        KUBECONFIG: ./kubeconfig.yaml
+        HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+        HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+        HARBOR_EMAIL: ${{ secrets.HARBOR_EMAIL }}
+      run: |
+        kubectl get secret harbor >/dev/null 2>&1 || \
+        kubectl create secret docker-registry harbor \
+          --docker-server=registry.us.linkeye.io \
+          --docker-username="$HARBOR_USERNAME" \
+          --docker-password="$HARBOR_PASSWORD" \
+          --docker-email="$HARBOR_EMAIL"
+
+    - name: 🚀 Deploy all components to Civo
+      env:
+        KUBECONFIG: ./kubeconfig.yaml
+      run: |
+        # DPU Config & Secrets
+        kubectl apply -f go-stg/stg-go-dpu/go-dpu-config-properties.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/go-dpu-secrets.yaml --validate=true
+
+        # go-api service
+        kubectl apply -f go-stg/go-api/go-api-secrets.yaml --validate=true
+        kubectl apply -f go-stg/go-api/go-api-deployment.yml --validate=true
+        kubectl apply -f go-stg/go-api/go-api-service.yml --validate=true
+
+        # copilot service
+        kubectl apply -f go-stg/copilot/copilot-go-deployment.yaml --validate=true
+        kubectl apply -f go-stg/copilot/copilot-service.yaml --validate=true
+
+        # DPU Deployments
+        kubectl apply -f go-stg/stg-go-dpu/dex/dex-dpu-deployment.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/interface/interface-dpu-deployment.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/lan/lan-dpu-deployment.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/regualr/regular-dpu-deployment.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/status/status-deployment.yaml --validate=true
+        kubectl apply -f go-stg/stg-go-dpu/wan/wan-dpu-deployment.yaml --validate=true
+
+    - name: 🔁 Rollout restart all critical deployments
+      env:
+        KUBECONFIG: ./kubeconfig.yaml
+      run: |
+        kubectl rollout restart deployment dex-dpu
+        kubectl rollout restart deployment interface-dpu
+        kubectl rollout restart deployment lan-dpu
+        kubectl rollout restart deployment regular-health
+        kubectl rollout restart deployment status-dpu
+        kubectl rollout restart deployment wan-dpu
+        kubectl rollout restart deployment go-ui
+        kubectl rollout restart deployment go-api
+
+
