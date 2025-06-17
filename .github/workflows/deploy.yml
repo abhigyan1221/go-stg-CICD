@@ -49,7 +49,7 @@ jobs:
 
         echo "🚀 Deploying go-api..."
         kubectl apply -f go-api/go-api-secrets.yaml --validate=true
-        kubectl apply -f go-api/go-api-deployment.yaml --validate=true
+        kubectl apply -f go-api/go-api-deployment.yml --validate=true
         kubectl apply -f go-api/go-api-service.yaml --validate=true
 
         echo "🚀 Deploying copilot..."
