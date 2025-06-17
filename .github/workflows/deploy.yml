@@ -44,25 +44,25 @@ jobs:
         KUBECONFIG: ./kubeconfig.yaml
       run: |
         echo "🔄 Applying ConfigMaps and Secrets..."
-        kubectl apply -f go-stg/stg-go-dpu/go-dpu-config-properties.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/go-dpu-secrets.yaml --validate=true
+        kubectl apply -f stg-go-dpu/go-dpu-config-properties.yaml --validate=true
+        kubectl apply -f stg-go-dpu/go-dpu-secrets.yaml --validate=true
 
         echo "🚀 Deploying go-api..."
-        kubectl apply -f go-stg/go-api/go-api-secrets.yaml --validate=true
-        kubectl apply -f go-stg/go-api/go-api-deployment.yml --validate=true
-        kubectl apply -f go-stg/go-api/go-api-service.yml --validate=true
+        kubectl apply -f go-api/go-api-secrets.yaml --validate=true
+        kubectl apply -f go-api/go-api-deployment.yml --validate=true
+        kubectl apply -f go-api/go-api-service.yml --validate=true
 
         echo "🚀 Deploying copilot..."
-        kubectl apply -f go-stg/copilot/copilot-go-deployment.yaml --validate=true
-        kubectl apply -f go-stg/copilot/copilot-service.yaml --validate=true
+        kubectl apply -f copilot/copilot-go-deployment.yaml --validate=true
+        kubectl apply -f copilot/copilot-service.yaml --validate=true
 
         echo "🚀 Deploying DPU services..."
-        kubectl apply -f go-stg/stg-go-dpu/dex/dex-dpu-deployment.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/interface/interface-dpu-deployment.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/lan/lan-dpu-deployment.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/regualr/regular-dpu-deployment.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/status/status-deployment.yaml --validate=true
-        kubectl apply -f go-stg/stg-go-dpu/wan/wan-dpu-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/dex/dex-dpu-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/interface/interface-dpu-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/lan/lan-dpu-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/regualr/regular-dpu-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/status/status-deployment.yaml --validate=true
+        kubectl apply -f stg-go-dpu/wan/wan-dpu-deployment.yaml --validate=true
 
     - name: 🔁 Rollout restart all critical deployments
       env:
