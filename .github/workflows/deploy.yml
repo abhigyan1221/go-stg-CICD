@@ -60,7 +60,7 @@ jobs:
         kubectl apply -f stg-go-dpu/dex/dex-dpu-deployment.yaml --validate=true
         kubectl apply -f stg-go-dpu/interface/interface-dpu-deployment.yaml --validate=true
         kubectl apply -f stg-go-dpu/lan/lan-dpu-deployment.yaml --validate=true
-        kubectl apply -f stg-go-dpu/regualr/regualar-dpu-deploymentz --validate=true
+        kubectl apply -f stg-go-dpu/regualr/regualar-dpu-deployment.yaml --validate=true
         kubectl apply -f stg-go-dpu/status/status-deployment.yaml --validate=true
         kubectl apply -f stg-go-dpu/wan/wan-dpu-deployment.yaml --validate=true
 
